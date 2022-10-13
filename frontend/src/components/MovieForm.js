@@ -37,7 +37,18 @@ const MovieForm = () => {
     const json = await response.json()
 
     if(!response.ok) {
-      setError(json.error)
+
+      if(json.error instanceof Array) {
+        let tempEmsg = '';
+        json.error.forEach(eMsg => {
+          tempEmsg += eMsg.msg + '\n';
+        });
+        console.log(tempEmsg);
+        setError(tempEmsg);
+      } else {
+        setError(json.error);
+      }
+
       setEmptyFields(json.emptyFields)
     }
     if(response.ok) {
@@ -61,7 +72,6 @@ const MovieForm = () => {
         type="text"
         onChange={(e) => setName(e.target.value)}
         value={name}
-        className={emptyFields.includes('name') ? 'error' : ''}
       />
 
       <label>Rating ( Between 1 - 5 ):</label>
@@ -69,7 +79,6 @@ const MovieForm = () => {
         type="number"
         onChange={(e) => setRating(e.target.value)}
         value={rating}
-        className={emptyFields.includes('rating') ? 'error' : ''}
       />
 
       <label>Genre:</label>
@@ -77,7 +86,6 @@ const MovieForm = () => {
         type="text"
         onChange={(e) => setGenre(e.target.value)}
         value={genre}
-        className={emptyFields.includes('cast') ? 'error' : ''}
       />
 
       <label>Cast:</label>
@@ -85,7 +93,6 @@ const MovieForm = () => {
         type="text"
         onChange={(e) => setCast(e.target.value)}
         value={cast}
-        className={emptyFields.includes('cast') ? 'error' : ''}
       />
 
       <label>Release date:</label>
@@ -93,7 +100,6 @@ const MovieForm = () => {
         type="date"
         onChange={(e) => setReleasedate(e.target.value)}
         value={releasedate}
-        className={emptyFields.includes('releasedate') ? 'error' : ''}
       />
 
       <button>Add Movie</button>

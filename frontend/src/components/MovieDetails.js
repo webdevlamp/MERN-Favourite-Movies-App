@@ -30,10 +30,10 @@ const MovieDetails = ({ movie }) => {
 
   return (
     <div className="movie-details">
-      <table>
+      <table className="movie-table">
         <thead>
           <tr>
-            <th><h4>{movie.title}</h4></th>
+            <th><h4>{movie.name}</h4></th>
           </tr>
         </thead>
         <tbody>

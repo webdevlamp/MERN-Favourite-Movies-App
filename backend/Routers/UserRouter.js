@@ -12,6 +12,11 @@ const { signupValidation, loginValidation } = require("./../Common/Validation");
 router.post("/signup", signupValidation, (req, res, next) => {
   db.query(`SELECT id FROM users WHERE LOWER(email) = LOWER(${db.escape(req.body.email)});`,
     (err, result) => {
+      // return with validation errors
+      const errors = validationResult(req);
+      if(!errors.isEmpty()) {
+        return res.status(400).json({ error: errors.array() });
+      }
       if(result.length) {
         return res.status(409).send({error: "This user is already in use!"});
       } else {
@@ -41,6 +46,12 @@ router.post("/login", loginValidation, (req, res, next) => {
   db.query(
     `SELECT * FROM users WHERE email = ${db.escape(req.body.email)};`,
     (err, result) => {
+      // return with validation errors
+      const errors = validationResult(req);
+      if(!errors.isEmpty()) {
+        return res.status(400).json({ error: errors.array() });
+      }
+      
       // user does not exists
       if(err) {
         throw err;
@@ -60,7 +71,7 @@ router.post("/login", loginValidation, (req, res, next) => {
             return res.status(401).send({error: "Email or password is incorrect!"});
           }
           if(bResult) {
-            const token = jwt.sign({ id: result[0].id }, Config.jwtSecret || "favourite-movies-app",{ expiresIn: Config.jwtSecretExpiresIn || "1h" });
+            const token = jwt.sign({ id: result[0].id }, Config.jwtSecret || "favourite-movies-app", { expiresIn: Config.jwtSecretExpiresIn || "1h" });
             db.query(`UPDATE users SET last_login = now() WHERE id = '${result[0].id}'`);
             return res.status(200).send({token, data: { name: result[0].name} });
           }

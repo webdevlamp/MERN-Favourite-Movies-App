@@ -21,7 +21,18 @@ export const useLogin = () => {
 
     if(!response.ok) {
       setIsLoading(false)
-      setError(json.error)
+
+      if(json.error instanceof Array) {
+        let tempEmsg = '';
+        json.error.forEach(eMsg => {
+          tempEmsg += eMsg.msg + '\n';
+        });
+        console.log(tempEmsg);
+        setError(tempEmsg);
+      } else {
+        setError(json.error);
+      }
+
     }
     if(response.ok) {
       // save the user to local storage

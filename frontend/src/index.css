@@ -38,6 +38,16 @@ header a {
   grid-template-columns: 3fr 1fr;
   gap: 100px;
 }
+
+.movie-table {
+  width: 100%;
+}
+
+.movie-table th {
+  text-align: left;
+  width: 30%;
+}
+
 .movie-details {
   background: #fff;
   border-radius: 4px;
