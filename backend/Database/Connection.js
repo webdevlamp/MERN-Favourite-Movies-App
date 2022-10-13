@@ -1,9 +1,12 @@
-var mysql = require('mysql');
-var conn = mysql.createConnection({
-  host: 'localhost', // Replace with your host name
-  user: 'favourite-movies',      // Replace with your database username
-  password: 'favourite-movies',      // Replace with your database password
-  database: 'favourite-movies' // // Replace with your database Name
+let mysql = require('mysql');
+
+const Config = require('./../Common/Config');
+
+let conn = mysql.createConnection({
+  host: Config.mysql.host || 'localhost',
+  user: Config.mysql.user || 'favourite-movies',
+  password: Config.mysql.pass || 'favourite-movies',
+  database: Config.mysql.db || 'favourite-movies'
 }); 
  
 conn.connect(function(err) {

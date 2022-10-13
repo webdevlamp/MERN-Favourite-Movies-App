@@ -4,10 +4,11 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const { authenticateJWT } = require('./Common/Auth.js');
+const Config = require('./Common/Config');
+const { authenticateJWT } = require('./Common/Auth');
 
-const userRouter = require('./Routers/UserRouter.js');
-const movieRouter = require('./Routers/MovieRouter.js');
+const userRouter = require('./Routers/UserRouter');
+const movieRouter = require('./Routers/MovieRouter');
  
 const app = express();
  
@@ -33,4 +34,4 @@ app.use((err, req, res, next) => {
     });
 });
  
-app.listen(3000,() => console.log('Server is running on port 3000'))
+app.listen(Config.port || 3000, () => console.log('Server is running on port ' + Config.port || 3000))

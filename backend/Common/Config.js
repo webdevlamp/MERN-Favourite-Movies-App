@@ -1,5 +1,7 @@
-var Config = {};
+let Config = {};
 
+
+Config.port = 3000;
 Config.jwtSecret =  "favourite-movies-app";
 Config.jwtSecretExpiresIn =  "1h";
 

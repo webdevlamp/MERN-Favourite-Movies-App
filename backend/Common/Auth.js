@@ -22,7 +22,7 @@ const authenticateJWT = (req, res, next) => {
 
 const decodeJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (authHeader) {
+  if(authHeader) {
       const token = authHeader.split(' ')[1];
       jwt.verify(token, Config.jwtSecret || "favourite-movies-app", (err, user) => {
         if(err) {

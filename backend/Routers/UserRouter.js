@@ -4,43 +4,31 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const Config = require("./../Common/Config");
 const db = require("./../Database/Connection");
 const { signupValidation, loginValidation } = require("./../Common/Validation");
 
 
 router.post("/signup", signupValidation, (req, res, next) => {
-  db.query(
-    `SELECT * FROM users WHERE LOWER(email) = LOWER(${db.escape(
-      req.body.email
-    )});`,
+  db.query(`SELECT id FROM users WHERE LOWER(email) = LOWER(${db.escape(req.body.email)});`,
     (err, result) => {
-      if (result.length) {
-        return res.status(409).send({
-          error: "This user is already in use!",
-        });
+      if(result.length) {
+        return res.status(409).send({error: "This user is already in use!"});
       } else {
         // username is available
         bcrypt.hash(req.body.password, 10, (err, hash) => {
-          if (err) {
-            return res.status(500).send({
-              error: err,
-            });
+          if(err) {
+            return res.status(500).send({error: err});
           } else {
             // has hashed pw => add to database
-            db.query(
-              `INSERT INTO users (name, email, password) VALUES ('${
-                req.body.name
-              }', ${db.escape(req.body.email)}, ${db.escape(hash)})`,
+            db.query(`INSERT INTO users (name, email, password) VALUES ('${req.body.name}', ${db.escape(req.body.email)}, ${db.escape(hash)})`,
               (err, result) => {
-                if (err) {
+                if(err) {
                   throw err;
-                  return res.status(400).send({
-                    error: err,
-                  });
+                  return res.status(400).send({error: err});
                 }
-                return res.status(201).send({
-                  msg: "The user has been signed up with us!",
-                });
+                const token = jwt.sign({ id: result.insertId }, Config.jwtSecret || "favourite-movies-app",{ expiresIn: Config.jwtSecretExpiresIn || "1h" });
+                return res.status(201).send({token, data: { name: req.body.name } });
               }
             );
           }
@@ -54,16 +42,12 @@ router.post("/login", loginValidation, (req, res, next) => {
     `SELECT * FROM users WHERE email = ${db.escape(req.body.email)};`,
     (err, result) => {
       // user does not exists
-      if (err) {
+      if(err) {
         throw err;
-        return res.status(400).send({
-          error: err,
-        });
+        return res.status(400).send({error: err});
       }
-      if (!result.length) {
-        return res.status(401).send({
-          error: "Email or password is incorrect!",
-        });
+      if(!result.length) {
+        return res.status(401).send({error: "Email or password is incorrect!"});
       }
       // check password
       bcrypt.compare(
@@ -71,26 +55,14 @@ router.post("/login", loginValidation, (req, res, next) => {
         result[0]["password"],
         (bErr, bResult) => {
           // wrong password
-          if (bErr) {
+          if(bErr) {
             throw bErr;
-            return res.status(401).send({
-              error: "Email or password is incorrect!",
-            });
+            return res.status(401).send({error: "Email or password is incorrect!"});
           }
-          if (bResult) {
-            const token = jwt.sign(
-              { id: result[0].id },
-              "the-super-strong-secrect",
-              { expiresIn: "1h" }
-            );
-            db.query(
-              `UPDATE users SET last_login = now() WHERE id = '${result[0].id}'`
-            );
-            return res.status(200).send({
-              msg: "Logged in!",
-              token,
-              user: result[0],
-            });
+          if(bResult) {
+            const token = jwt.sign({ id: result[0].id }, Config.jwtSecret || "favourite-movies-app",{ expiresIn: Config.jwtSecretExpiresIn || "1h" });
+            db.query(`UPDATE users SET last_login = now() WHERE id = '${result[0].id}'`);
+            return res.status(200).send({token, data: { name: result[0].name} });
           }
           return res.status(401).send({
             error: "Username or password is incorrect!",
@@ -101,7 +73,7 @@ router.post("/login", loginValidation, (req, res, next) => {
   );
 });
 router.post("/get-user", signupValidation, (req, res, next) => {
-  if (
+  if(
     !req.headers.authorization ||
     !req.headers.authorization.startsWith("Bearer") ||
     !req.headers.authorization.split(" ")[1]
@@ -116,7 +88,7 @@ router.post("/get-user", signupValidation, (req, res, next) => {
     "SELECT * FROM users where id=?",
     decoded.id,
     function (error, results, fields) {
-      if (error) throw error;
+      if(error) throw error;
       return res.send({
         error: false,
         data: results[0],
